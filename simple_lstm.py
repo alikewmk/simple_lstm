@@ -7,7 +7,7 @@ class SimpleLSTM:
     """
     Should I also add bptt truncate
     """
-    def __init__(self, vocab_num, hidden_num=100):
+    def __init__(self, vocab_num, hidden_num=128):
         concat_num = hidden_num + vocab_num
         self.vocab_num = vocab_num
         self.hidden_num = hidden_num
@@ -50,7 +50,6 @@ class SimpleLSTM:
         bo   = self.bo
         bg   = self.bg
 
-
         x = T.ivector('x')
         y = T.ivector('y')
 
@@ -68,9 +67,6 @@ class SimpleLSTM:
             h_t = T.tanh(c_t) * o_t
             y_hat = T.nnet.softmax(V.dot(h_t))
 
-            """
-            Is this wrong?
-            """
             return [y_hat[0], h_t, c_t]
 
         one_hot_x = T.extra_ops.to_one_hot(x, self.vocab_num)
