@@ -28,6 +28,7 @@ class LargeCharFeatureGenerator:
         except IOError as error:
             exit(error)
 
+    # maybe should change this part to yield!
     def _generate_training_data(self):
         inputs = []
         targets = []

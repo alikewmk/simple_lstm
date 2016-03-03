@@ -26,6 +26,7 @@ class SimpleLSTM:
         self.V = theano.shared(name='V', value=V.astype(theano.config.floatX))
 
         # bias init
+        # It seems a high init bias on forget gate helps
         bi = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
         bf = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
         bo = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))

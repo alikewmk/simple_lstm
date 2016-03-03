@@ -9,6 +9,10 @@ from char_feature_generator import CharFeatureGenerator
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.01'))
 _NEPOCH = int(os.environ.get('NEPOCH', '300'))
 
+
+"""
+Change it to mini-batch training
+"""
 def train_with_sgd(model, x_train, y_train,
                    learning_rate=0.001,
                    nepoch=10,
