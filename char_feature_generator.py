@@ -8,7 +8,6 @@ class CharFeatureGenerator:
         self.dict_chars = {ch:i for i, ch in enumerate(self.chars)}
         self.dict_idx   = {i:ch for i, ch in enumerate(self.chars)}
 
-
     def print_info(self):
         print 'data has %d chars, %d unique.' % (self.data_size, self.vocab_size)
 
@@ -25,7 +24,6 @@ class CharFeatureGenerator:
 
     def one_hot_encoding():
         pass
-
 
 # TEST
 if __name__ == '__main__':
