@@ -22,9 +22,6 @@ class CharFeatureGenerator:
 
         return inputs, targets
 
-    def one_hot_encoding():
-        pass
-
 # TEST
 if __name__ == '__main__':
     train_chars = CharFeatureGenerator('data/char/pg1342.txt');
