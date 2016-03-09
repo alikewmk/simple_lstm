@@ -10,7 +10,7 @@ from large_char_feature_generator import LargeCharFeatureGenerator
 
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.01'))
 _NEPOCH = int(os.environ.get('NEPOCH', '300'))
-_BATCH_SIZE = int(os.environ.get('NEPOCH', '1000'))
+_BATCH_SIZE = int(os.environ.get('NEPOCH', '100'))
 
 
 """
@@ -63,7 +63,8 @@ def generate_sentence(model, train_chars, length=20):
     # randomly choose a start char
     # TODO: for each sentence, add start_char and end_char in the training data
     init_idx = np.random.choice(range(train_chars.vocab_size))
-    new_sentence = [init_idx]
+    # use start sign * as the start of sentence
+    new_sentence = [0]
 
     while length > 0:
         next_word_probs = model.forward_propagation(new_sentence)
@@ -102,7 +103,7 @@ def timeit(method):
 # TEST
 if __name__ == '__main__':
 
-    train_chars = LargeCharFeatureGenerator('data/char/new_wsj.txt', 10);
+    train_chars = LargeCharFeatureGenerator('data/char/test.txt', 10);
     train_chars.print_info()
     #data_iterator = train_chars.generate_training_data()
 

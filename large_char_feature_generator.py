@@ -6,7 +6,9 @@ class LargeCharFeatureGenerator:
     def __init__(self, source_file, gram_num=10):
         self.source_file = source_file
         self.gram_num    = gram_num
-        self.chars       = list(string.ascii_uppercase)
+        # Mark * as the start of sentence
+        #      $ as the end   of sentence
+        self.chars       = ["*"] + list(string.ascii_uppercase) + ["$"]
         self.vocab_size  = len(self.chars)
         self.dict_chars  = {ch:i for i, ch in enumerate(self.chars)}
         self.dict_idx    = {i:ch for i, ch in enumerate(self.chars)}
@@ -14,6 +16,7 @@ class LargeCharFeatureGenerator:
     def print_info(self):
         print 'data has %d unique chars.' % (self.vocab_size)
 
+    # remove blanks in data
     def line_corpus(self, filename):
         """
         Lazily read line corpus from a file `filename`
@@ -21,14 +24,12 @@ class LargeCharFeatureGenerator:
         try:
             with open(filename, "r") as source:
                 for line in source:
-                    yield line.replace("\n", '').replace(" ", "")
+                    yield "".join(["*", line.replace("\n", '').replace(" ", ""), "$"])
 
         except IOError as error:
             exit(error)
 
     def generate_training_data(self):
-        inputs = []
-        targets = []
         for line in self.line_corpus(self.source_file):
             p = 0
             while p+self.gram_num+1 < len(line):
