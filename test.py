@@ -1,45 +1,59 @@
 import os
 import sys
 import pickle
+import itertools
 import numpy as np
 from datetime import datetime
 from simple_lstm import SimpleLSTM
 from char_feature_generator import CharFeatureGenerator
+from large_char_feature_generator import LargeCharFeatureGenerator
 
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.01'))
 _NEPOCH = int(os.environ.get('NEPOCH', '300'))
+_BATCH_SIZE = int(os.environ.get('NEPOCH', '1000'))
 
 
 """
 Change it to mini-batch training
 """
-def train_with_sgd(model, x_train, y_train,
+def train_with_sgd(model,
+                   train_chars,
                    learning_rate=0.001,
                    nepoch=10,
-                   evaluate_loss_after=1):
+                   evaluate_loss_after=1,
+                   mini_batch_size=1000):
 
     losses = []
     num_examples_seen = 0
+
+    # iterate through each epoch
     for epoch in range(nepoch):
-        loss = model.calculate_loss(x_train, y_train)
-        losses.append((num_examples_seen, loss))
-        time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        print "%s: Loss after num_examples_seen=%d epoch=%d: %f" % (time, num_examples_seen, epoch, loss)
+        # iterate trough each mini batch
+        # need to init after each iteration through whole dataset
+        data_iterator = train_chars.generate_training_data()
+        while 1:
+            try:
+                x_train, y_train = zip(*itertools.islice(data_iterator, 0, mini_batch_size))
+                loss = model.calculate_loss(x_train, y_train)
+                losses.append((num_examples_seen, loss))
+                time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                print "%s: Loss after num_examples_seen=%d epoch=%d: %f" % (time, num_examples_seen, epoch, loss)
 
-        # change learning rate here
-        if (len(losses) > 1 and losses[-1][1] > losses[-2][1]):
-            learning_rate = learning_rate * 0.5
-            print "Setting learning rate to %f" % learning_rate
+                # change learning rate here
+                if (len(losses) > 1 and losses[-1][1] > losses[-2][1]):
+                    learning_rate = learning_rate * 0.5
+                    print "Setting learning rate to %f" % learning_rate
 
-        """
-        What is this for?
-        """
-        sys.stdout.flush()
+                sys.stdout.flush()
 
-        for i in range(len(y_train)):
-            # One SGD step
-            model.sgd_step(x_train[i], y_train[i], learning_rate)
-            num_examples_seen += 1
+                for i in range(len(y_train)):
+                    # One SGD step
+                    model.sgd_step(x_train[i], y_train[i], learning_rate)
+                    num_examples_seen += 1
+
+            # iterator reaches the end here
+            except ValueError:
+                break
 
 """
 TODO: Change the logic here to generate sentence char by char
@@ -88,13 +102,17 @@ def timeit(method):
 # TEST
 if __name__ == '__main__':
 
-    train_chars = CharFeatureGenerator('data/char/pg1342.txt');
+    train_chars = LargeCharFeatureGenerator('data/char/new_wsj.txt', 10);
     train_chars.print_info()
-    inputs, targets = train_chars.generate_training_data(10)
+    #data_iterator = train_chars.generate_training_data()
 
     model = SimpleLSTM(train_chars.vocab_size)
 
-    train_with_sgd(model, inputs[:1000], targets[:1000], nepoch=_NEPOCH, learning_rate=_LEARNING_RATE)
+    train_with_sgd(model,
+                   train_chars,
+                   nepoch=_NEPOCH,
+                   learning_rate=_LEARNING_RATE,
+                   mini_batch_size=_BATCH_SIZE)
 
     for i in range(10):
         print generate_sentence(model, train_chars)

@@ -26,7 +26,6 @@ class LargeCharFeatureGenerator:
         except IOError as error:
             exit(error)
 
-    # maybe should change this part to yield!
     def generate_training_data(self):
         inputs = []
         targets = []
@@ -34,12 +33,21 @@ class LargeCharFeatureGenerator:
             p = 0
             while p+self.gram_num+1 < len(line):
                 p += 1
-                yield ([self.dict_chars[ch] for ch in line[p:p+self.gram_num]], [self.dict_chars[ch] for ch in line[p+1:p+self.gram_num+1]])
+                yield [self.dict_chars[ch] for ch in line[p:p+self.gram_num]], [self.dict_chars[ch] for ch in line[p+1:p+self.gram_num+1]]
 
 # TEST
 if __name__ == '__main__':
 
-    train_chars = LargeCharFeatureGenerator('data/char/new_wsj.txt');
+    train_chars = LargeCharFeatureGenerator('data/char/test.txt');
     train_chars.print_info()
-    for (i,o) in train_chars.generate_training_data():
-        print i, o
+    iterator = train_chars.generate_training_data()
+    import itertools
+    while 1:
+        try:
+            inputs, outputs = zip(*itertools.islice(iterator, 0, 100))
+            print len(inputs)
+        except ValueError:
+            break
+
+    print inputs
+
