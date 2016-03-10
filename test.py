@@ -1,12 +1,15 @@
 import os
 import sys
-import pickle
 import itertools
 import numpy as np
+from six.moves import cPickle
 from datetime import datetime
 from simple_lstm import SimpleLSTM
 from char_feature_generator import CharFeatureGenerator
 from large_char_feature_generator import LargeCharFeatureGenerator
+
+# prevent pickle stack over flow
+sys.setrecursionlimit(100000)
 
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.001'))
 _NEPOCH = int(os.environ.get('NEPOCH', '1'))
@@ -106,13 +109,19 @@ if __name__ == '__main__':
     train_chars = LargeCharFeatureGenerator('data/char/test.txt', 10);
     train_chars.print_info()
 
-    model = SimpleLSTM(train_chars.vocab_size)
+    if os.path.isfile("50000_model.save"):
+        with open("50000_model.save",'rb') as f:
+            model = cPickle.load(f)
+    else:
+        model = SimpleLSTM(train_chars.vocab_size)
+        train_with_sgd(model,
+                       train_chars,
+                       nepoch=_NEPOCH,
+                       learning_rate=_LEARNING_RATE,
+                       mini_batch_size=_BATCH_SIZE)
 
-    train_with_sgd(model,
-                   train_chars,
-                   nepoch=_NEPOCH,
-                   learning_rate=_LEARNING_RATE,
-                   mini_batch_size=_BATCH_SIZE)
+        with open('50000_model.save', 'wb') as f:
+            cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     for i in range(10):
         print generate_sentence(model, train_chars)
