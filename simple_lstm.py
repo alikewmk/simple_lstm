@@ -16,7 +16,7 @@ class SimpleLSTM:
         # weight init
         WiUi = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         # forget gate have more weight in the beginning
-        WfUf = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num)) + 0.1
+        WfUf = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         WoUo = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         WgUg = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         V    = np.random.uniform(-np.sqrt(1./hidden_num), np.sqrt(1./hidden_num), (vocab_num, hidden_num))
@@ -117,11 +117,11 @@ class SimpleLSTM:
                                             [],
                                             updates = [
                                                 # add L2 regularization
-                                                (self.WiUi, self.WiUi - learning_rate * dWiUi - 0.00001 * self.WiUi),
-                                                (self.WfUf, self.WfUf - learning_rate * dWfUf - 0.00001 * self.WfUf),
-                                                (self.WoUo, self.WoUo - learning_rate * dWoUo - 0.00001 * self.WoUo),
-                                                (self.WgUg, self.WgUg - learning_rate * dWgUg - 0.00001 * self.WgUg),
-                                                (self.V, self.V - learning_rate * dV - 0.00001 * self.V),
+                                                (self.WiUi, self.WiUi - learning_rate * dWiUi),
+                                                (self.WfUf, self.WfUf - learning_rate * dWfUf),
+                                                (self.WoUo, self.WoUo - learning_rate * dWoUo),
+                                                (self.WgUg, self.WgUg - learning_rate * dWgUg),
+                                                (self.V, self.V - learning_rate * dV),
                                                 (self.bi, self.bi - learning_rate * dbi),
                                                 (self.bf, self.bf - learning_rate * dbf),
                                                 (self.bo, self.bo - learning_rate * dbo),

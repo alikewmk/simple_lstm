@@ -106,7 +106,7 @@ def timeit(method):
 # TEST
 if __name__ == '__main__':
 
-    train_chars = LargeCharFeatureGenerator('data/char/test.txt', 10);
+    train_chars = LargeCharFeatureGenerator('data/char/new_wsj_test.txt', 10);
     train_chars.print_info()
 
     if os.path.isfile("50000_model.save"):
