@@ -8,8 +8,8 @@ from simple_lstm import SimpleLSTM
 from char_feature_generator import CharFeatureGenerator
 from large_char_feature_generator import LargeCharFeatureGenerator
 
-_LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.01'))
-_NEPOCH = int(os.environ.get('NEPOCH', '300'))
+_LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.001'))
+_NEPOCH = int(os.environ.get('NEPOCH', '1'))
 _BATCH_SIZE = int(os.environ.get('NEPOCH', '100'))
 
 
@@ -40,9 +40,9 @@ def train_with_sgd(model,
                 print "%s: Loss after num_examples_seen=%d epoch=%d: %f" % (time, num_examples_seen, epoch, loss)
 
                 # change learning rate here
-                if (len(losses) > 1 and losses[-1][1] > losses[-2][1]):
-                    learning_rate = learning_rate * 0.5
-                    print "Setting learning rate to %f" % learning_rate
+                #if (len(losses) > 1 and losses[-1][1] > losses[-2][1]):
+                #    learning_rate = learning_rate * 0.5
+                #    print "Setting learning rate to %f" % learning_rate
 
                 sys.stdout.flush()
 
@@ -105,7 +105,6 @@ if __name__ == '__main__':
 
     train_chars = LargeCharFeatureGenerator('data/char/test.txt', 10);
     train_chars.print_info()
-    #data_iterator = train_chars.generate_training_data()
 
     model = SimpleLSTM(train_chars.vocab_size)
 
