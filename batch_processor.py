@@ -1,14 +1,21 @@
 '''
 Module consists of methods used in distributed training
+!!! Remember to manually add:
+data/batch/ -> training data separated into different files
+models/results/ -> store the training result model of each epoch
+models/training/ -> store the models currently training
+logs/ store log of each training model
 '''
 
 from multiprocessing import Pool
 from functools import partial
 import os
 import re
-from lstm_train import *
+import sys
 from six.moves import cPickle
 from datetime import datetime
+
+from lstm_train import *
 from simple_lstm import SimpleLSTM
 from char_feature_generator import CharFeatureGenerator
 from large_char_feature_generator import LargeCharFeatureGenerator
@@ -24,10 +31,15 @@ def create_folder(folder):
     if not os.path.exists(folder):
         os.mkdir(folder)
 
-def train(*args):
+def train(epoch_num, output_dir, *args):
 
     model_name = args[0][0]
     file       = args[0][1]
+    log_name   = "logs/" + model_name + "_epoch_" + str(epoch_num) + ".log"
+    model_name = output_dir + "training/" + model_name
+
+    # direct stdout to log file
+    sys.stdout = open(log_name, 'a+')
 
     # TODO: gram_num here is a magic number!
     train_chars = LargeCharFeatureGenerator(file, 10);
@@ -51,7 +63,7 @@ def train(*args):
     for i in range(10):
         print generate_sentence(model, train_chars)
 
-def multi_processing(process_num, input_dir):
+def multi_processing(process_num, epoch_num, input_dir, output_dir):
     '''
     The basic rule of batch number setting is:
     1. If processes needed is less than CPU number, set to process number
@@ -59,14 +71,16 @@ def multi_processing(process_num, input_dir):
        e.g: if we have 12 processes and 8 CPU, set number to 12 because 8 <= 12 < 8*2
             if we have 18 processes and 8 CPU, set number to 18/2=9 because  8 <= 9 < 8*2
     '''
+
     files = [input_dir + f for f in os.listdir(input_dir) if f.startswith('new_wsj')]
     model_names = ["model_" + str(i) for i in range(len(files))]
-    train_process = partial(train)
+    train_process = partial(train, epoch_num, output_dir)
     Pool(process_num).map(train_process, zip(model_names, files))
 
     # TODO: There might have a more elegant way to avoid critical section
     models = []
     for model_name in model_names:
+        model_name = output_dir + "training/" + model_name
         if os.path.isfile(model_name):
             with open(model_name,'rb') as f:
                 model = cPickle.load(f)
@@ -74,7 +88,7 @@ def multi_processing(process_num, input_dir):
             print model_name + " doesn't exist!"
             return
         models.append(model)
-    merge_model_params(models, 0)
+    merge_model_params(models, epoch_num, output_dir)
 
 if __name__ == '__main__':
-    multi_processing(2, "data/batch_test/")
+    multi_processing(2, 1, "data/batch_test/", "models/")

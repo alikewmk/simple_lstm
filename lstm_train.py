@@ -89,11 +89,12 @@ def generate_sentence(model, train_chars, length=20):
 
     return "".join(result_sentence)
 
-def merge_model_params(models, epoch_num):
+def merge_model_params(models, epoch_num, output_dir):
     """
     Merge the params of each model after current epoch, and store the params in a new model
     """
     model_num = len(models)
+    output_dir += "results/"
 
     # init vals need to merge
     first_model = models[0]
@@ -142,7 +143,7 @@ def merge_model_params(models, epoch_num):
 
     first_model = models[0]
 
-    with open('model_after_' + str(epoch_num) + "_epoch.save", 'wb') as f:
+    with open(output_dir + 'model_after_' + str(epoch_num) + "_epoch.save", 'wb') as f:
         cPickle.dump(first_model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
 def timeit(method):
