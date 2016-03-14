@@ -91,4 +91,4 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
     merge_model_params(models, epoch_num, output_dir)
 
 if __name__ == '__main__':
-    multi_processing(2, 1, "data/batch_test/", "models/")
+    multi_processing(12, 1, "data/batch/", "models/")
