@@ -1,0 +1,80 @@
+'''
+Module consists of methods used in distributed training
+'''
+
+from multiprocessing import Pool
+from functools import partial
+import os
+import re
+from lstm_train import *
+from six.moves import cPickle
+from datetime import datetime
+from simple_lstm import SimpleLSTM
+from char_feature_generator import CharFeatureGenerator
+from large_char_feature_generator import LargeCharFeatureGenerator
+
+_LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.001'))
+_NEPOCH = int(os.environ.get('NEPOCH', '1'))
+_BATCH_SIZE = int(os.environ.get('NEPOCH', '100'))
+
+def create_folder(folder):
+    '''
+    Create target dir for parsed files
+    '''
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+
+def train(*args):
+
+    model_name = args[0][0]
+    file       = args[0][1]
+
+    # TODO: gram_num here is a magic number!
+    train_chars = LargeCharFeatureGenerator(file, 10);
+    train_chars.print_info()
+
+    if os.path.isfile(model_name):
+        with open(model_name,'rb') as f:
+            model = cPickle.load(f)
+    else:
+        model = SimpleLSTM(train_chars.vocab_size)
+
+    train_with_sgd(model,
+                   train_chars,
+                   nepoch=_NEPOCH,
+                   learning_rate=_LEARNING_RATE,
+                   mini_batch_size=_BATCH_SIZE)
+
+    with open(model_name, 'wb') as f:
+        cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
+
+    for i in range(10):
+        print generate_sentence(model, train_chars)
+
+def multi_processing(process_num, input_dir):
+    '''
+    The basic rule of batch number setting is:
+    1. If processes needed is less than CPU number, set to process number
+    2. If processes needed is more than CPU number, choose a batch number that is in [CPU_num, CPU_num*2)
+       e.g: if we have 12 processes and 8 CPU, set number to 12 because 8 <= 12 < 8*2
+            if we have 18 processes and 8 CPU, set number to 18/2=9 because  8 <= 9 < 8*2
+    '''
+    files = [input_dir + f for f in os.listdir(input_dir) if f.startswith('new_wsj')]
+    model_names = ["model_" + str(i) for i in range(len(files))]
+    train_process = partial(train)
+    Pool(process_num).map(train_process, zip(model_names, files))
+
+    # TODO: There might have a more elegant way to avoid critical section
+    models = []
+    for model_name in model_names:
+        if os.path.isfile(model_name):
+            with open(model_name,'rb') as f:
+                model = cPickle.load(f)
+        else:
+            print model_name + " doesn't exist!"
+            return
+        models.append(model)
+    merge_model_params(models, 0)
+
+if __name__ == '__main__':
+    multi_processing(2, "data/batch_test/")

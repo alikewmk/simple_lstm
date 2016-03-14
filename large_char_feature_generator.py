@@ -7,7 +7,7 @@ class LargeCharFeatureGenerator:
         self.source_file = source_file
         self.gram_num    = gram_num
         # Mark * as the start of sentence
-        #      $ as the end   of sentence
+        # Mark $ as the end   of sentence
         self.chars       = ["*"] + list(string.ascii_uppercase) + ["$"]
         self.vocab_size  = len(self.chars)
         self.dict_chars  = {ch:i for i, ch in enumerate(self.chars)}

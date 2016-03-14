@@ -15,7 +15,6 @@ class SimpleLSTM:
 
         # weight init
         WiUi = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
-        # forget gate have more weight in the beginning
         WfUf = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         WoUo = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
         WgUg = np.random.uniform(-np.sqrt(1./concat_num), np.sqrt(1./concat_num), (hidden_num, concat_num))
@@ -27,7 +26,6 @@ class SimpleLSTM:
         self.V = theano.shared(name='V', value=V.astype(theano.config.floatX))
 
         # bias init
-        # It seems a high init bias on forget gate helps
         bi = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
         bf = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
         bo = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
@@ -116,7 +114,6 @@ class SimpleLSTM:
         self.sgd_step = theano.function(    [x, y, learning_rate],
                                             [],
                                             updates = [
-                                                # add L2 regularization
                                                 (self.WiUi, self.WiUi - learning_rate * dWiUi),
                                                 (self.WfUf, self.WfUf - learning_rate * dWfUf),
                                                 (self.WoUo, self.WoUo - learning_rate * dWoUo),
