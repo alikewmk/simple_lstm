@@ -170,14 +170,15 @@ if __name__ == '__main__':
             model = cPickle.load(f)
     else:
         model = SimpleLSTM(train_chars.vocab_size)
-        train_with_sgd(model,
-                       train_chars,
-                       nepoch=_NEPOCH,
-                       learning_rate=_LEARNING_RATE,
-                       mini_batch_size=_BATCH_SIZE)
 
-        with open('50000_model.save', 'wb') as f:
-            cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
+    train_with_sgd(model,
+                   train_chars,
+                   nepoch=_NEPOCH,
+                   learning_rate=_LEARNING_RATE,
+                   mini_batch_size=_BATCH_SIZE)
+
+    with open('50000_model.save', 'wb') as f:
+        cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     for i in range(10):
         print generate_sentence(model, train_chars)
