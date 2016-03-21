@@ -1,4 +1,5 @@
 import os
+import random
 import string
 
 class LargeCharFeatureGenerator:
@@ -22,9 +23,10 @@ class LargeCharFeatureGenerator:
         Lazily read line corpus from a file `filename`
         """
         try:
-            with open(filename, "r") as source:
-                for line in source:
-                    yield "".join(["*", line.replace("\n", '').replace(" ", ""), "$"])
+            lines = open(filename).readlines()
+            random.shuffle(lines)
+            for line in lines:
+                yield "".join(["*", line.replace("\n", '').replace(" ", ""), "$"])
 
         except IOError as error:
             exit(error)
