@@ -15,8 +15,8 @@ from large_char_feature_generator import LargeCharFeatureGenerator
 sys.setrecursionlimit(100000)
 
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.001'))
-_NEPOCH = int(os.environ.get('NEPOCH', '1'))
-_BATCH_SIZE = int(os.environ.get('NEPOCH', '100'))
+_NEPOCH = int(os.environ.get('NEPOCH', '10'))
+_BATCH_SIZE = int(os.environ.get('NBATCH', '100'))
 
 
 """
@@ -37,18 +37,15 @@ def train_with_sgd(model,
         # iterate trough each mini batch
         # need to init after each iteration through whole dataset
         data_iterator = train_chars.generate_training_data()
+        cal_losses = []
         while 1:
             try:
                 x_train, y_train = zip(*itertools.islice(data_iterator, 0, mini_batch_size))
                 loss = model.calculate_loss(x_train, y_train)
+                cal_losses.append(loss)
                 losses.append((num_examples_seen, loss))
                 time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
                 print "%s: Loss after num_examples_seen=%d epoch=%d: %f" % (time, num_examples_seen, epoch, loss)
-
-                # change learning rate here
-                #if (len(losses) > 1 and losses[-1][1] > losses[-2][1]):
-                #    learning_rate = learning_rate * 0.5
-                #    print "Setting learning rate to %f" % learning_rate
 
                 sys.stdout.flush()
 
@@ -60,11 +57,10 @@ def train_with_sgd(model,
             # iterator reaches the end here
             except ValueError:
                 break
+        print str(sum(cal_losses)/len(cal_losses))
 
 def generate_sentence(model, train_chars, length=20):
-    # randomly choose a start char
-    # TODO: for each sentence, add start_char and end_char in the training data
-    init_idx = np.random.choice(range(train_chars.vocab_size))
+
     # use start sign * as the start of sentence
     new_sentence = [0]
 
@@ -146,27 +142,14 @@ def merge_model_params(models, epoch_num, output_dir):
     with open(output_dir + 'model_after_' + str(epoch_num) + "_epoch.save", 'wb') as f:
         cPickle.dump(first_model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
-def timeit(method):
-    """
-    Decorator that calculate function running time
-    """
-    def calculate_time(*args, **kw):
-        start_time = time.time()
-        result = method(*args, **kw)
-        end_time = time.time()
-
-        return ": ".join([result, str(end_time-start_time)]) + "\n"*2
-
-    return calculate_time
-
 # TEST
 if __name__ == '__main__':
 
-    train_chars = LargeCharFeatureGenerator('data/char/new_wsj_test.txt', 10);
+    train_chars = LargeCharFeatureGenerator('data/char/test.txt', 10);
     train_chars.print_info()
 
-    if os.path.isfile("50000_model.save"):
-        with open("50000_model.save",'rb') as f:
+    if os.path.isfile("1000_model.save"):
+        with open("1000_model.save",'rb') as f:
             model = cPickle.load(f)
     else:
         model = SimpleLSTM(train_chars.vocab_size)
@@ -177,7 +160,7 @@ if __name__ == '__main__':
                    learning_rate=_LEARNING_RATE,
                    mini_batch_size=_BATCH_SIZE)
 
-    with open('50000_model.save', 'wb') as f:
+    with open('1000_model.save', 'wb') as f:
         cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     for i in range(10):
