@@ -23,7 +23,7 @@ class SimpleLSTM:
         self.WfUf = theano.shared(name='WfUf', value=WfUf.astype(theano.config.floatX))
         self.WoUo = theano.shared(name='WoUo', value=WoUo.astype(theano.config.floatX))
         self.WgUg = theano.shared(name='WgUg', value=WgUg.astype(theano.config.floatX))
-        self.V = theano.shared(name='V', value=V.astype(theano.config.floatX))
+        self.V    = theano.shared(name='V', value=V.astype(theano.config.floatX))
 
         # bias init
         bi = np.random.uniform(-np.sqrt(1./hidden_num), -np.sqrt(1./hidden_num), (hidden_num))
@@ -73,7 +73,7 @@ class SimpleLSTM:
         [o, h, c], updates = theano.scan(
             forward_prop_step,
             sequences = one_hot_x,
-            outputs_info=[
+            outputs_info = [
                 # init o
                 None,
                 # init h

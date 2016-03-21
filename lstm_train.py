@@ -19,9 +19,6 @@ _NEPOCH = int(os.environ.get('NEPOCH', '10'))
 _BATCH_SIZE = int(os.environ.get('NBATCH', '100'))
 
 
-"""
-Change it to mini-batch training
-"""
 def train_with_sgd(model,
                    train_chars,
                    learning_rate=0.001,
