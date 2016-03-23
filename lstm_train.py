@@ -82,7 +82,7 @@ def generate_sentence(model, train_chars, length=20):
 
     return "".join(result_sentence)
 
-def merge_model_params(models, epoch_num, output_dir):
+def merge_model_params(main_model, models, epoch_num, output_dir):
     """
     Merge the params of each model after current epoch, and store the params in a new model
     """
@@ -113,27 +113,26 @@ def merge_model_params(models, epoch_num, output_dir):
         sum_bo   += model.bo.eval()
         sum_bg   += model.bg.eval()
 
-
-    grad_WiUi = main_model.WiUi - (sum_WiUi - (model_num * main_model.WiUi))
-    grad_WfUf = main_model.WfUf - (sum_WfUf - (model_num * main_model.WfUf))
-    grad_WoUo = main_model.WoUo - (sum_WoUo - (model_num * main_model.WoUo))
-    grad_WgUg = main_model.WgUg - (sum_WgUg - (model_num * main_model.WgUg))
-    grad_V    = main_model.V    - (sum_V - (model_num * main_model.V))
-    grad_bi   = main_model.bi   - (sum_bi - (model_num * main_model.bi))
-    grad_bf   = main_model.bf   - (sum_bf - (model_num * main_model.bf))
-    grad_bo   = main_model.bo   - (sum_bo - (model_num * main_model.bo))
-    grad_bg   = main_model.bg   - (sum_bg - (model_num * main_model.bg))
+    grad_WiUi = main_model.WiUi.eval() - (sum_WiUi - (model_num * main_model.WiUi.eval()))
+    grad_WfUf = main_model.WfUf.eval() - (sum_WfUf - (model_num * main_model.WfUf.eval()))
+    grad_WoUo = main_model.WoUo.eval() - (sum_WoUo - (model_num * main_model.WoUo.eval()))
+    grad_WgUg = main_model.WgUg.eval() - (sum_WgUg - (model_num * main_model.WgUg.eval()))
+    grad_V    = main_model.V.eval()    - (sum_V - (model_num * main_model.V.eval()))
+    grad_bi   = main_model.bi.eval()   - (sum_bi - (model_num * main_model.bi.eval()))
+    grad_bf   = main_model.bf.eval()   - (sum_bf - (model_num * main_model.bf.eval()))
+    grad_bo   = main_model.bo.eval()   - (sum_bo - (model_num * main_model.bo.eval()))
+    grad_bg   = main_model.bg.eval()   - (sum_bg - (model_num * main_model.bg.eval()))
 
     for model in models:
-        model.WiUi = theano.shared(name='WiUi', value=mean_WiUi.astype(theano.config.floatX))
-        model.WfUf = theano.shared(name='WfUf', value=mean_WfUf.astype(theano.config.floatX))
-        model.WoUo = theano.shared(name='WoUo', value=mean_WoUo.astype(theano.config.floatX))
-        model.WgUg = theano.shared(name='WgUg', value=mean_WgUg.astype(theano.config.floatX))
-        model.V    = theano.shared(name='V',  value=mean_V.astype(theano.config.floatX))
-        model.bi   = theano.shared(name='bi', value=mean_bi.astype(theano.config.floatX))
-        model.bf   = theano.shared(name='bf', value=mean_bf.astype(theano.config.floatX))
-        model.bo   = theano.shared(name='bo', value=mean_bo.astype(theano.config.floatX))
-        model.bg   = theano.shared(name='bg', value=mean_bg.astype(theano.config.floatX))
+        model.WiUi = theano.shared(name='WiUi', value=grad_WiUi.astype(theano.config.floatX))
+        model.WfUf = theano.shared(name='WfUf', value=grad_WfUf.astype(theano.config.floatX))
+        model.WoUo = theano.shared(name='WoUo', value=grad_WoUo.astype(theano.config.floatX))
+        model.WgUg = theano.shared(name='WgUg', value=grad_WgUg.astype(theano.config.floatX))
+        model.V    = theano.shared(name='V',  value=grad_V.astype(theano.config.floatX))
+        model.bi   = theano.shared(name='bi', value=grad_bi.astype(theano.config.floatX))
+        model.bf   = theano.shared(name='bf', value=grad_bf.astype(theano.config.floatX))
+        model.bo   = theano.shared(name='bo', value=grad_bo.astype(theano.config.floatX))
+        model.bg   = theano.shared(name='bg', value=grad_bg.astype(theano.config.floatX))
 
     first_model = models[0]
 

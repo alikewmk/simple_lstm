@@ -36,7 +36,7 @@ def train(epoch_num, output_dir, *args):
     model_name = args[0][0]
     file       = args[0][1]
 
-    log_name   = "another_logs/" + model_name + "_epoch_" + str(epoch_num) + ".log"
+    log_name   = "another_logs/" + model_name + ".log"
     model_name = output_dir + "another_training/" + model_name
 
     # direct stdout to log file
@@ -96,6 +96,10 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
     if os.path.isfile(main_model_name):
         with open(main_model_name,'rb') as f:
             main_model = cPickle.load(f)
+    else:
+        main_model = SimpleLSTM(28)
+        with open(main_model_name, 'wb') as f:
+            cPickle.dump(main_model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     merge_model_params(main_model, models, epoch_num, output_dir)
 
