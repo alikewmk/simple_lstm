@@ -53,7 +53,8 @@ def train_with_sgd(model,
             # iterator reaches the end here
             except ValueError:
                 break
-        #log.write(str(sum(cal_losses)/len(cal_losses) + "\n"))
+
+    return str(sum(cal_losses)/len(cal_losses)) + "\n"
 
 def generate_sentence(model, train_chars, length=20):
 

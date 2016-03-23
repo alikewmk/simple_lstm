@@ -35,7 +35,7 @@ def train(epoch_num, output_dir, *args):
 
     model_name = args[0][0]
     file       = args[0][1]
-    log_name   = "logs/" + model_name + "_epoch_" + str(epoch_num) + ".log"
+    log_name   = "logs/" + model_name + ".log"
     model_name = output_dir + "training/" + model_name
 
     # direct stdout to log file
@@ -43,7 +43,6 @@ def train(epoch_num, output_dir, *args):
 
     # TODO: gram_num here is a magic number!
     train_chars = LargeCharFeatureGenerator(file, 10);
-    train_chars.print_info()
 
     if os.path.isfile(model_name):
         with open(model_name,'rb') as f:
@@ -51,19 +50,16 @@ def train(epoch_num, output_dir, *args):
     else:
         model = SimpleLSTM(train_chars.vocab_size)
 
-    train_with_sgd(model,
-                   train_chars,
-                   nepoch=_NEPOCH,
-                   learning_rate=_LEARNING_RATE,
-                   mini_batch_size=_BATCH_SIZE)
+    avg_loss = train_with_sgd(model,
+                              train_chars,
+                              nepoch=_NEPOCH,
+                              learning_rate=_LEARNING_RATE,
+                              mini_batch_size=_BATCH_SIZE)
 
     with open(model_name, 'wb') as f:
         cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
-    for i in range(10):
-        log_file.write(generate_sentence(model, train_chars))
-        log_file.write("\n")
-
+    log_file.write(avg_loss)
     log_file.close()
 
 def multi_processing(process_num, epoch_num, input_dir, output_dir):
