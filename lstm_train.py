@@ -15,15 +15,14 @@ from large_char_feature_generator import LargeCharFeatureGenerator
 sys.setrecursionlimit(100000)
 
 _LEARNING_RATE = float(os.environ.get('LEARNING_RATE', '0.001'))
-_NEPOCH = int(os.environ.get('NEPOCH', '10'))
+_NEPOCH = int(os.environ.get('NEPOCH', '1'))
 _BATCH_SIZE = int(os.environ.get('NBATCH', '100'))
 
 
 def train_with_sgd(model,
                    train_chars,
                    learning_rate=0.001,
-                   nepoch=10,
-                   evaluate_loss_after=1,
+                   nepoch=1,
                    mini_batch_size=1000):
 
     losses = []
