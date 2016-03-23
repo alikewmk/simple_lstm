@@ -39,7 +39,7 @@ def train(epoch_num, output_dir, *args):
     model_name = output_dir + "training/" + model_name
 
     # direct stdout to log file
-    sys.stdout = open(log_name, 'a+')
+    log_file = open(log_name, 'a+')
 
     # TODO: gram_num here is a magic number!
     train_chars = LargeCharFeatureGenerator(file, 10);
@@ -61,7 +61,10 @@ def train(epoch_num, output_dir, *args):
         cPickle.dump(model, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     for i in range(10):
-        print generate_sentence(model, train_chars)
+        log_file.write(generate_sentence(model, train_chars))
+        log_file.write("\n")
+
+    log_file.close()
 
 def multi_processing(process_num, epoch_num, input_dir, output_dir):
     '''
@@ -75,7 +78,10 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
     files = [input_dir + f for f in os.listdir(input_dir) if f.startswith('new_wsj')]
     model_names = ["model_" + str(i) for i in range(len(files))]
     train_process = partial(train, epoch_num, output_dir)
-    Pool(process_num).map(train_process, zip(model_names, files))
+    pool = Pool(process_num)
+    pool.map(train_process, zip(model_names, files))
+    pool.close()
+    pool.join()
 
     # TODO: There might have a more elegant way to avoid critical section
     models = []
@@ -92,4 +98,4 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
 
 if __name__ == '__main__':
     for i in range(5):
-        multi_processing(12, i+1, "data/batch_test/", "models/")
+        multi_processing(2, i+1, "data/batch_test/", "models/")

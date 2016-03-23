@@ -41,7 +41,7 @@ def train_with_sgd(model,
                 cal_losses.append(loss)
                 losses.append((num_examples_seen, loss))
                 time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-                print "%s: Loss after num_examples_seen=%d epoch=%d: %f" % (time, num_examples_seen, epoch, loss)
+                #log.write("%s: Loss after num_examples_seen=%d epoch=%d: %f \n" % (time, num_examples_seen, epoch, loss))
 
                 sys.stdout.flush()
 
@@ -53,7 +53,7 @@ def train_with_sgd(model,
             # iterator reaches the end here
             except ValueError:
                 break
-        print str(sum(cal_losses)/len(cal_losses))
+        #log.write(str(sum(cal_losses)/len(cal_losses) + "\n"))
 
 def generate_sentence(model, train_chars, length=20):
 
