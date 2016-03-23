@@ -87,7 +87,7 @@ def merge_model_params(models, epoch_num, output_dir):
     Merge the params of each model after current epoch, and store the params in a new model
     """
     model_num = len(models)
-    output_dir += "results/"
+    output_dir += "another_results/"
 
     # init vals need to merge
     first_model = models[0]
@@ -113,15 +113,16 @@ def merge_model_params(models, epoch_num, output_dir):
         sum_bo   += model.bo.eval()
         sum_bg   += model.bg.eval()
 
-    mean_WiUi = sum_WiUi/model_num
-    mean_WfUf = sum_WfUf/model_num
-    mean_WoUo = sum_WoUo/model_num
-    mean_WgUg = sum_WgUg/model_num
-    mean_V    = sum_V/model_num
-    mean_bi   = sum_bi/model_num
-    mean_bf   = sum_bf/model_num
-    mean_bo   = sum_bo/model_num
-    mean_bg   = sum_bg/model_num
+
+    grad_WiUi = main_model.WiUi - (sum_WiUi - (model_num * main_model.WiUi))
+    grad_WfUf = main_model.WfUf - (sum_WfUf - (model_num * main_model.WfUf))
+    grad_WoUo = main_model.WoUo - (sum_WoUo - (model_num * main_model.WoUo))
+    grad_WgUg = main_model.WgUg - (sum_WgUg - (model_num * main_model.WgUg))
+    grad_V    = main_model.V    - (sum_V - (model_num * main_model.V))
+    grad_bi   = main_model.bi   - (sum_bi - (model_num * main_model.bi))
+    grad_bf   = main_model.bf   - (sum_bf - (model_num * main_model.bf))
+    grad_bo   = main_model.bo   - (sum_bo - (model_num * main_model.bo))
+    grad_bg   = main_model.bg   - (sum_bg - (model_num * main_model.bg))
 
     for model in models:
         model.WiUi = theano.shared(name='WiUi', value=mean_WiUi.astype(theano.config.floatX))

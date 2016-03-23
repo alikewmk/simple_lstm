@@ -35,8 +35,9 @@ def train(epoch_num, output_dir, *args):
 
     model_name = args[0][0]
     file       = args[0][1]
-    log_name   = "logs/" + model_name + ".log"
-    model_name = output_dir + "training/" + model_name
+
+    log_name   = "another_logs/" + model_name + "_epoch_" + str(epoch_num) + ".log"
+    model_name = output_dir + "another_training/" + model_name
 
     # direct stdout to log file
     log_file = open(log_name, 'a+')
@@ -82,7 +83,7 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
     # TODO: There might have a more elegant way to avoid critical section
     models = []
     for model_name in model_names:
-        model_name = output_dir + "training/" + model_name
+        model_name = output_dir + "another_training/" + model_name
         if os.path.isfile(model_name):
             with open(model_name,'rb') as f:
                 model = cPickle.load(f)
@@ -90,7 +91,13 @@ def multi_processing(process_num, epoch_num, input_dir, output_dir):
             print model_name + " doesn't exist!"
             return
         models.append(model)
-    merge_model_params(models, epoch_num, output_dir)
+
+    main_model_name = output_dir + "another_results/" + 'model_after_' + str(epoch_num-1) + "_epoch.save"
+    if os.path.isfile(main_model_name):
+        with open(main_model_name,'rb') as f:
+            main_model = cPickle.load(f)
+
+    merge_model_params(main_model, models, epoch_num, output_dir)
 
 if __name__ == '__main__':
     for i in range(5):
